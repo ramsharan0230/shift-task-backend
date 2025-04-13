@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\ApiResponse;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
+use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use Repositories\LoginEloquentInterface;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -19,10 +22,28 @@ class AuthController extends Controller
         $this->loginEloquentRepository = $loginRepository;
     }
 
-    public function login(LoginRequest $request): JsonResponse
+    public function makeLogin(LoginRequest $request): JsonResponse
     {
-        $user = $this->loginEloquentRepository->login($request->email, $request->password);
-        return $this->success($user, "Login successful");
+        try{
+            $userDetails = $this->loginEloquentRepository->login($request->email, $request->password);
+            
+            return $this->success($userDetails, "Login successful");
+        }catch(Exception $e){
+            Log::info("error: ".$e->getMessage());
+            return $this->error($e->getMessage(), "Unsuccessful", Response::HTTP_UNAUTHORIZED);
+        }
+    } 
+
+    public function logout(): JsonResponse
+    {
+        try{
+            $this->loginEloquentRepository->logout();
+            
+            return $this->success([], "Logout successful");
+        }catch(Exception $e){
+            Log::info("error: ".$e->getMessage());
+            return $this->error($e->getMessage(), "Unsuccessful", Response::HTTP_UNAUTHORIZED);
+        }
     } 
     
     public function refreshToken(): JsonResponse

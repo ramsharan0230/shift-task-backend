@@ -4,7 +4,7 @@ namespace Repositories;
 use App\Models\Task;
 use Illuminate\Support\Collection;
 
-interface TaskEloquentInterface{
+interface TaskEloquentInterface {
     public function fetchAllTasks(): Collection;
     public function store(array $data): Task;
     public function show(int $id): Task;

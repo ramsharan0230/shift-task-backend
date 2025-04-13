@@ -7,10 +7,9 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Exception;
-use Hash;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Http;
-use Log;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -33,7 +32,6 @@ class UserController extends Controller
                 'name' => $request->input('name'),
                 'email' => $request->input('email'),
                 'password' => Hash::make($request->input('password')),
-            
             ]);
             
             $userCreated = $user->fresh();
