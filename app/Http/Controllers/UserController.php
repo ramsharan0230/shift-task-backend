@@ -22,7 +22,7 @@ class UserController extends Controller
         $data = [
             'users' => UserResource::collection(User::all())
         ];
-        return $this->success($data, "Created successfully", Response::HTTP_CREATED);
+        return $this->success($data, "Users fetched successfully", Response::HTTP_CREATED);
     }
 
     public function store(StoreUserRequest $request): JsonResponse
@@ -37,9 +37,8 @@ class UserController extends Controller
             $userCreated = $user->fresh();
             $data = [
                 'user' => new UserResource($userCreated),
-                'token' => JWTAuth::fromUser($userCreated),
             ];
-            return $this->success($data, "Created successfully", Response::HTTP_CREATED);
+            return $this->success($data, "User created successfully", Response::HTTP_CREATED);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());   
             return $this->error($exception->getMessage(), "Internal Server Error", Response::HTTP_INTERNAL_SERVER_ERROR);
