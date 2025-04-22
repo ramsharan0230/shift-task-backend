@@ -1,85 +1,91 @@
-<?php 
+<?php
+// app/Repositories/TaskRepository.php
 
 namespace Repositories;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\Task;
-use Exception;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpFoundation\Response;
 
-class TaskRepository implements TaskEloquentInterface {
-
+class TaskRepository implements TaskEloquentInterface
+{
     public function fetchAllTasks(): Collection
     {
         try {
             return Task::with('creator')->get();
         } catch (QueryException $e) {
-            Log::error('Database error fetching tasks: ' . $e->getMessage());
-            throw new Exception('Failed to fetch tasks due to a database error.');
-        } catch (Exception $e) {
-            Log::error('Unexpected error fetching tasks: ' . $e->getMessage());
-            throw new Exception('An unexpected error occurred.');
+            throw new HttpException(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                'Failed to fetch tasks.',
+                $e
+            );
         }
     }
 
     public function store(array $data): Task
     {
-        try{
-            $user = auth('api')->user();
-            $data['created_by'] = $user->id;
+        try {
+            $data['created_by'] = auth('api')->id();
             $task = Task::create($data);
             return $task->load('creator');
-            
-        }catch (Exception $e) {
-            Log::error('Error while storing task: '.$e->getMessage());
-            throw new Exception('Something went wrong while creating new task. Please try again later.');
+        } catch (QueryException $e) {
+            throw new HttpException(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                'Failed to create task.',
+                $e
+            );
         }
     }
 
     public function show(int $id): Task
     {
-        try{
+        try {
             return Task::with('creator')->findOrFail($id);
-        }catch (ModelNotFoundException $e) {
-            Log::error("Task not found with given id: {$id} : ".$e->getMessage());
-            throw new Exception("Task not found with given id: {$id}. Please try with valid id.");
-        }
-        catch (Exception $e) {
-            Log::error('Error while fetching task: '.$e->getMessage());
-            throw new Exception('Something went wrong while fetching task. Please try again later.');
+        } catch (ModelNotFoundException $e) {
+            throw new NotFoundHttpException("Task not found with id {$id}.", $e);
+        } catch (QueryException $e) {
+            throw new HttpException(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                'Failed to fetch task.',
+                $e
+            );
         }
     }
-    
+
     public function update(int $id, array $data): Task
     {
-        try{
+        try {
             $task = Task::findOrFail($id);
             $task->update($data);
             return $task;
-        }catch (ModelNotFoundException $e) {
-            Log::error("Task not found with given id: {$id} : ".$e->getMessage());
-            throw new Exception("Task not found with given id: {$id}. Please try with valid id.");
-        }
-        catch (Exception $e) {
-            Log::error('Error while updating task: '.$e->getMessage());
-            throw new Exception('Something went wrong while updating task. Please try again later.');
+        } catch (ModelNotFoundException $e) {
+            throw new NotFoundHttpException("Task not found with id {$id}.", $e);
+        } catch (QueryException $e) {
+            throw new HttpException(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                'Failed to update task.',
+                $e
+            );
         }
     }
-    
+
     public function destroy(int $id): void
     {
-        try{
+        try {
             $task = Task::findOrFail($id);
             $task->delete();
-        }catch (ModelNotFoundException $e) {
-            Log::error("Task not found with given id: {$id} : ".$e->getMessage());
-            throw new Exception("Task not found with given id: {$id}. Please try with valid id.");
-        }
-        catch (Exception $e) {
-            Log::error('Error while deleting task: '.$e->getMessage());
-            throw new Exception('Something went wrong while deleting task. Please try again later.');
+        } catch (ModelNotFoundException $e) {
+            throw new NotFoundHttpException("Task not found with id {$id}.", $e);
+        } catch (QueryException $e) {
+            throw new HttpException(
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                'Failed to delete task.',
+                $e
+            );
         }
     }
 }

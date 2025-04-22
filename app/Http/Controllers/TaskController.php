@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Repositories\TaskEloquentInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class TaskController extends Controller
 {
@@ -51,8 +52,10 @@ class TaskController extends Controller
             $task = $this->taskEloquentRepository->show($id);
             $taskResource = new TaskResource($task);
             return $this->success($taskResource, "Task has shown successfully.");
+        }catch(HttpExceptionInterface $ex){
+            return $this->error(null, $ex->getMessage(), $ex->getStatusCode());
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->error(null, $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     } 
 
@@ -62,8 +65,10 @@ class TaskController extends Controller
             $data = $request->all();
             $task = $this->taskEloquentRepository->update($id, $data);
             return $this->success($task, "Task updated successfully.");
+        }catch(HttpExceptionInterface $ex){
+            return $this->error(null, $ex->getMessage(), $ex->getStatusCode());
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->error(null, $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,8 +77,10 @@ class TaskController extends Controller
         try{
             $this->taskEloquentRepository->destroy($id);
             return $this->success([], "Task deleted successfully.");
+        }catch(HttpExceptionInterface $ex){
+            return $this->error(null, $ex->getMessage(), $ex->getStatusCode());
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->error(null, $ex->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     } 
 }
