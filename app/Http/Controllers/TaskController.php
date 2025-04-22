@@ -27,7 +27,7 @@ class TaskController extends Controller
             $taskResource = TaskResource::collection($tasks);
             return $this->success($taskResource, "Tasks fetched successfully.");
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_UNAUTHORIZED);
+            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
     } 
@@ -40,7 +40,7 @@ class TaskController extends Controller
             $taskResource = new TaskResource($task);
             return $this->success($taskResource, "Tasks created successfully.");
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_UNAUTHORIZED);
+            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         
     } 
@@ -52,7 +52,7 @@ class TaskController extends Controller
             $taskResource = new TaskResource($task);
             return $this->success($taskResource, "Task has shown successfully.");
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_UNAUTHORIZED);
+            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     } 
 
@@ -63,7 +63,7 @@ class TaskController extends Controller
             $task = $this->taskEloquentRepository->update($id, $data);
             return $this->success($task, "Task updated successfully.");
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_UNAUTHORIZED);
+            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,7 +73,7 @@ class TaskController extends Controller
             $this->taskEloquentRepository->destroy($id);
             return $this->success([], "Task deleted successfully.");
         }catch(Exception $ex){
-            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_UNAUTHORIZED);
+            return $this->error($ex->getMessage(), "Unsuccessfull", Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     } 
 }
